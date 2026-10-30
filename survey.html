@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>리더십 리인벤트 2.0 · 만족도 설문</title>
+<style>
+:root{
+  --lg-red:#A50034;
+  --lg-red-dark:#7C0027;
+  --ink:#1A1A1A;
+  --sub:#6B6B6B;
+  --line:#EAEAEA;
+  --bg-soft:#FAFAFA;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+  font-family:'Pretendard','Malgun Gothic',-apple-system,sans-serif;
+  background:var(--bg-soft); color:var(--ink); padding:24px;
+}
+.wrap{max-width:420px; width:100%;}
+.eyebrow{
+  text-align:center; font-size:12px; letter-spacing:.14em; color:var(--lg-red);
+  font-weight:700; text-transform:uppercase; margin-bottom:8px;
+}
+h1{text-align:center; font-size:21px; margin:0 0 6px; font-weight:800;}
+p.desc{text-align:center; font-size:13px; color:var(--sub); margin:0 0 32px;}
+
+.day-card{
+  display:block; text-decoration:none; color:var(--ink);
+  background:#fff; border:1px solid var(--line); border-radius:14px;
+  padding:22px 20px; margin-bottom:14px;
+  box-shadow:0 1px 3px rgba(0,0,0,.04);
+  transition:.15s; position:relative; overflow:hidden;
+}
+.day-card:active{transform:scale(.98);}
+.day-card .bar{
+  position:absolute; left:0; top:0; bottom:0; width:5px; background:var(--lg-red);
+}
+.day-card .label{font-size:11px; color:var(--sub); font-weight:700; letter-spacing:.08em; margin-bottom:4px;}
+.day-card .title{font-size:17px; font-weight:800; margin-bottom:4px;}
+.day-card .sub{font-size:12px; color:var(--sub);}
+.day-card .arrow{
+  position:absolute; right:20px; top:50%; transform:translateY(-50%);
+  font-size:20px; color:var(--lg-red);
+}
+
+.footer-note{text-align:center; font-size:11px; color:var(--sub); margin-top:24px; line-height:1.6;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="eyebrow">Learning Satisfaction Survey</div>
+  <h1>리더십 리인벤트 2.0</h1>
+  <p class="desc">1일차 / 2일차 설문을 선택해 주세요</p>
+
+  <a class="day-card" id="day1Link" href="#">
+    <div class="bar"></div>
+    <div class="label">DAY 1</div>
+    <div class="title">1일차 설문</div>
+    <div class="sub">M1~M3 모듈 만족도</div>
+    <div class="arrow">›</div>
+  </a>
+
+  <a class="day-card" id="day2Link" href="#">
+    <div class="bar"></div>
+    <div class="label">DAY 2</div>
+    <div class="title">2일차 설문</div>
+    <div class="sub">M4~M7 모듈 · 전체 과정 만족도</div>
+    <div class="arrow">›</div>
+  </a>
+
+  <div class="footer-note">
+    LG Electronics Leadership Development팀 · 평택 러닝센터<br>
+    설문은 각 일자 종료 후 참여해 주세요
+  </div>
+</div>
+
+<script>
+// ── 설문 페이지 경로만 이 두 줄에서 관리하면 됩니다 ──────────────
+const DAY1_URL = 'https://lgehqex.github.io/26LR/survey/day1.html';
+const DAY2_URL = 'https://lgehqex.github.io/26LR/survey/day2.html';
+// ─────────────────────────────────────────────────────────
+
+document.getElementById('day1Link').href = DAY1_URL;
+document.getElementById('day2Link').href = DAY2_URL;
+</script>
+</body>
+</html>
