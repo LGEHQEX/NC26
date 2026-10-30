@@ -4,13 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>과제 투표 현황 (강사용)</title>
+<title>신입사원 1주년: Next Chapter · 과제 투표 현황</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
   :root{--bg:#f5f6f8;--card:#fff;--ink:#1b1e24;--sub:#6b7280;--line:#e3e6eb;--pri:#a50034}
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;line-height:1.5}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:Pretendard,-apple-system,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;line-height:1.5}
   .wrap{max-width:900px;margin:0 auto;padding:20px 16px 60px}
-  h1{font-size:22px;margin:8px 0 14px}
+  .hero{background:linear-gradient(160deg,#a50034,#7d0027);color:#fff;border-radius:18px;padding:20px 20px 18px;margin:4px 0 14px}
+  .hero h1{font-size:21px;margin:8px 0 2px}.hero p{margin:0;font-size:13px;opacity:.85}
+  .badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 11px;border-radius:99px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35)}
   .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
   input,select{padding:11px;border:1px solid var(--line);border-radius:10px;font-size:15px;font-family:inherit}
   button{font:inherit;cursor:pointer;padding:11px 16px;border:0;border-radius:10px;background:var(--pri);color:#fff;font-weight:600}
@@ -36,7 +39,7 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>과제 투표 현황 <span class="sub">(강사용)</span></h1>
+  <div class="hero"><span class="badge">🎂 신입사원 1주년</span><h1>🏆 Next Chapter 과제 투표 현황</h1><p>강사용 · 분반을 선택해 주세요 👇</p></div>
 
   <div class="card">
     <div class="row">
@@ -116,14 +119,14 @@ function render() {
   let rank = 0, prev = null, idx = 0;
   $('tb').innerHTML = items.map(i => {
     idx++; if (i.votes !== prev) { rank = idx; prev = i.votes; }
-    const isOpen = open.has(i.empNo);
+    const isOpen = open.has(i.id);
     const link = safeUrl(i.link);
-    return `<tr class="main" data-k="${esc(i.empNo)}"><td class="rank">${rank}</td><td class="t">${esc(i.title)}</td><td class="sec">${esc(i.section)}</td><td class="votes">${i.votes}</td></tr>` +
+    return `<tr class="main" data-k="${esc(i.id)}"><td class="rank">${i.votes > 0 && rank <= 3 ? ['🥇','🥈','🥉'][rank-1] : rank}</td><td class="t">${esc(i.title)}</td><td class="sec">${esc(i.section)}</td><td class="votes">${i.votes}</td></tr>` +
       (isOpen ? `<tr class="detail"><td></td><td colspan="3"><div class="kv">
-        <span>이름</span><span>${esc(i.name)} (${esc(i.empNo)})</span>
-        <span>직급</span><span>${esc(i.rank)}</span>
-        <span>소속</span><span>${esc(i.hq)} / ${esc(i.dept)}</span>
-        <span>링크</span><span>${link ? `<a href="${esc(link)}" target="_blank" rel="noopener noreferrer">${esc(i.link)}</a>` : esc(i.link || '-')}</span>
+        <span>👤 이름</span><span>${esc(i.name)}</span>
+        <span>🏷️ 직급</span><span>${esc(i.rank)}</span>
+        <span>🏢 소속</span><span>${esc(i.hq)} / ${esc(i.dept)}</span>
+        <span>🔗 링크</span><span>${link ? `<a href="${esc(link)}" target="_blank" rel="noopener noreferrer">${esc(i.link)}</a>` : esc(i.link || '-')}</span>
       </div></td></tr>` : '');
   }).join('') || '<tr><td colspan="4" class="sub">데이터가 없습니다.</td></tr>';
 
@@ -133,8 +136,8 @@ function render() {
 
   const secs = Object.entries(data.sections).filter(([s]) => !sec || s === sec)
     .sort((a, b) => a[0].localeCompare(b[0], 'ko', { numeric: true }));
-  $('stats').innerHTML = secs.map(([s, v]) => `<span class="chip">${esc(s)}분반 투표 ${v.voted}/${v.total}명</span>`).join('') +
-    (data.open ? '' : '<span class="chip">투표 마감</span>');
+  $('stats').innerHTML = secs.map(([s, v]) => `<span class="chip">${esc(s)}분반 투표 ${v.voted}/${v.total}명 🗳️</span>`).join('') +
+    (data.open ? '' : '<span class="chip">⏰ 투표 마감</span>');
   $('upd').textContent = '갱신 ' + new Date(data.updated).toLocaleTimeString('ko-KR');
 }
 
