@@ -65,6 +65,12 @@
   .tokens .st{font-size:20px;letter-spacing:2px;color:#d9d5d7}
   .tokens .st b{color:var(--gold);font-weight:400}
   .bar .btn{margin:0}
+  .prev{flex:0 0 auto;padding:13px 14px;border:1.5px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);font-weight:700;font-size:14px}
+  .steps{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:13px;font-weight:700;color:#a8a3a6}
+  .steps span{padding:5px 13px;border-radius:99px;background:#efeaec}
+  .steps span.now{background:var(--lg);color:#fff;box-shadow:0 4px 12px rgba(165,0,52,.25)}
+  .steps span.ok{background:var(--gold-l);color:#9a6a00}
+  .steps i{font-style:normal}
 
   /* ── Done ── */
   .center{text-align:center;padding:38px 20px}
@@ -102,13 +108,15 @@
   <!-- 2. 투표 -->
   <div id="vote" class="hide">
     <div class="vhead">
-      <span class="chip" id="voteChip">📖 Chapter 1</span>
-      <h2>꼭 들어보고 싶은 일잘법을 골라주세요 💡</h2>
+      <div class="steps" id="steps"><span id="stp0">💼 WORK</span><i>→</i><span id="stp1">🌿 LIFE</span></div>
+      <span class="chip" id="voteChip"></span>
+      <h2 id="voteTitle"></h2>
       <p id="voteInfo"></p>
     </div>
     <div id="list"></div>
     <div class="bar"><div class="bar-in">
-      <div class="tokens"><small>내 투표권</small><div class="st" id="tokens"></div></div>
+      <button class="prev" id="prevBtn" hidden>← 이전</button>
+      <div class="tokens"><small id="tokLabel">내 투표권</small><div class="st" id="tokens"></div></div>
       <button class="btn" id="submitBtn" disabled>🗳️ 투표하기</button>
     </div></div>
     <div class="err" id="voteErr"></div>
@@ -131,7 +139,13 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbyHfjsjGmLrLjBHIBq2-zf7
 
 const $ = id => document.getElementById(id);
 const EMOJIS = ['💡', '🚀', '🌱', '🎯', '📚', '🧩', '🔍', '🛠️', '🌈', '💬', '🧠', '⚡'];
-let me = { empNo: '' }, MAX = 3, picked = new Set(), hasVoted = false, isOpen = true, cur = null;
+const CAT = [
+  { key: 'WORK', icon: '💼', title: '💼 WORK 관점에서 골라주세요', sub: '일(업무)에서 꼭 들어보고 싶은 일잘법' },
+  { key: 'LIFE', icon: '🌿', title: '🌿 LIFE 관점에서 골라주세요', sub: '삶(일상·성장)에서 꼭 들어보고 싶은 일잘법' }
+];
+let me = { empNo: '' }, MAX = 3, step = 0, hasVoted = false, isOpen = true, cur = null;
+const picks = [new Set(), new Set()];   // [WORK, LIFE]
+const secLabel = s => /반$/.test(String(s)) ? s : s + '분반';
 
 async function api(body) {
   const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
@@ -143,16 +157,6 @@ function done(icon, title, msg, party, canBack) {
   $('backBtn').hidden = !canBack;
   show('done'); if (party) confetti();
 }
-const secLabel = s => /반$/.test(String(s)) ? s : s + '분반';
-function setHeader() {
-  const r = cur;
-  $('voteChip').textContent = `📖 ${secLabel(r.section)}` + (hasVoted ? ' · ✅ 투표 완료' : '');
-  $('voteInfo').textContent = !isOpen
-    ? `${r.name}님이 선택한 일잘법이에요. 투표가 마감되었어요 ⏰`
-    : hasVoted
-      ? `${r.name}님, 투표 완료! 마음이 바뀌면 다시 골라서 수정할 수 있어요 🔁`
-      : `${r.name}님, 제목만 보고 최대 ${MAX}개까지 선택할 수 있어요.`;
-}
 function confetti() {
   const set = ['🎉', '✨', '⭐', '🎊', '🌱', '💛', '❤️'];
   for (let i = 0; i < 26; i++) {
@@ -163,13 +167,36 @@ function confetti() {
     document.body.appendChild(s); setTimeout(() => s.remove(), 6500);
   }
 }
+function setHeader() {
+  const r = cur, c = CAT[step];
+  $('voteChip').textContent = `📖 ${secLabel(r.section)}` + (hasVoted ? ' · ✅ 투표 완료' : '');
+  $('voteTitle').textContent = c.title;
+  $('voteInfo').textContent = !isOpen
+    ? `${r.name}님이 선택한 일잘법이에요. 투표가 마감되었어요 ⏰`
+    : `${c.sub} · 제목만 보고 최대 ${MAX}개까지 고를 수 있어요.` + (hasVoted ? ' (수정 가능 🔁)' : '');
+  [0, 1].forEach(i => {
+    const el = $('stp' + i);
+    el.className = i === step ? 'now' : (picks[i].size > 0 ? 'ok' : '');
+    el.textContent = (picks[i].size > 0 && i !== step ? '✓ ' : '') + CAT[i].icon + ' ' + CAT[i].key;
+  });
+}
 function updateBar() {
+  const n = picks[step].size;
   let h = '';
-  for (let i = 0; i < MAX; i++) h += i < picked.size ? '<b>★</b>' : '☆';
+  for (let i = 0; i < MAX; i++) h += i < n ? '<b>★</b>' : '☆';
   $('tokens').innerHTML = h;
+  $('tokLabel').textContent = `${CAT[step].key} 투표권`;
+  $('prevBtn').hidden = step === 0;
   const btn = $('submitBtn');
-  if (!isOpen) { btn.textContent = '⏰ 투표 마감'; btn.disabled = true; }
-  else { btn.textContent = hasVoted ? '🔁 투표 수정하기' : '🗳️ 투표하기'; btn.disabled = picked.size === 0; }
+  if (step === 0) {
+    btn.textContent = '다음: 🌿 LIFE 고르기 →';
+    btn.disabled = isOpen ? n === 0 : false;
+  } else if (!isOpen) {
+    btn.textContent = '⏰ 투표 마감'; btn.disabled = true;
+  } else {
+    btn.textContent = hasVoted ? '🔁 투표 수정하기' : '🗳️ 투표 완료하기';
+    btn.disabled = n === 0 || picks[0].size === 0;
+  }
 }
 
 $('loginBtn').onclick = async () => {
@@ -189,44 +216,54 @@ $('loginBtn').onclick = async () => {
 $('emp').addEventListener('keydown', e => { if (e.key === 'Enter') $('loginBtn').click(); });
 
 function render(r) {
-  cur = r; picked = new Set(r.myPicks || []); setHeader();
+  cur = r; step = 0;
+  const mp = r.myPicks || {};
+  picks[0] = new Set(mp.WORK || []); picks[1] = new Set(mp.LIFE || []);
+  drawList(); show('vote');
+}
+
+function drawList() {
   const list = $('list'); list.innerHTML = '';
-  r.items.forEach((it, idx) => {
+  $('voteErr').textContent = '';
+  cur.items.forEach((it, idx) => {
     const d = document.createElement('div'); d.className = 'item';
-    const on = picked.has(it.id);
     const em = document.createElement('div'); em.className = 'em'; em.textContent = EMOJIS[idx % EMOJIS.length];
     const t = document.createElement('div'); t.className = 'title'; t.textContent = it.title;
     const ck = document.createElement('div'); ck.className = 'ck';
-    if (on) { d.classList.add('on'); ck.textContent = '✓'; }
+    if (picks[step].has(it.id)) { d.classList.add('on'); ck.textContent = '✓'; }
     d.append(em, t, ck);
     d.onclick = () => {
       if (!isOpen) return;
-      if (picked.has(it.id)) { picked.delete(it.id); d.classList.remove('on'); ck.textContent = ''; }
-      else if (picked.size >= MAX) { $('voteErr').textContent = `투표권은 최대 ${MAX}장이에요 ⭐`; return; }
-      else { picked.add(it.id); d.classList.add('on'); ck.textContent = '✓'; }
-      $('voteErr').textContent = ''; updateBar();
+      const set = picks[step];
+      if (set.has(it.id)) { set.delete(it.id); d.classList.remove('on'); ck.textContent = ''; }
+      else if (set.size >= MAX) { $('voteErr').textContent = `${CAT[step].key} 투표권은 최대 ${MAX}장이에요 ⭐`; return; }
+      else { set.add(it.id); d.classList.add('on'); ck.textContent = '✓'; }
+      $('voteErr').textContent = ''; setHeader(); updateBar();
     };
     list.appendChild(d);
   });
-  updateBar(); show('vote');
+  setHeader(); updateBar(); window.scrollTo(0, 0);
 }
 
+$('prevBtn').onclick = () => { step = 0; drawList(); };
+
 $('submitBtn').onclick = async () => {
-  if (!confirm(hasVoted ? `${picked.size}개 선택으로 투표를 수정할까요? 🔁\n기존 투표는 새 선택으로 바뀌어요.` : `${picked.size}개 일잘법에 투표할까요? 🗳️\n제출 후에도 마감 전까지 수정할 수 있어요.`)) return;
+  if (step === 0) { step = 1; drawList(); return; }
+  if (!confirm((hasVoted ? '투표를 수정할까요? 🔁\n기존 투표는 새 선택으로 바뀌어요.' : '이대로 투표할까요? 🗳️') +
+      `\n\n💼 WORK ${picks[0].size}개 · 🌿 LIFE ${picks[1].size}개` + (hasVoted ? '' : '\n제출 후에도 마감 전까지 수정할 수 있어요.'))) return;
   const wasVoted = hasVoted;
   $('submitBtn').disabled = true; $('submitBtn').textContent = '제출 중... ⏳';
   try {
-    const r = await api({ action: 'vote', empNo: me.empNo, ids: [...picked] });
+    const r = await api({ action: 'vote', empNo: me.empNo, picks: { WORK: [...picks[0]], LIFE: [...picks[1]] } });
     if (r.ok) {
       hasVoted = true; setHeader(); updateBar();
-      done('🎉', wasVoted ? '투표를 수정했어요!' : '투표 완료!', '소중한 한 표 감사해요! 다음 챕터에서 만나요 💛', true, true);
-    }
-    else { $('voteErr').textContent = r.error; $('submitBtn').disabled = false; }
+      done('🎉', wasVoted ? '투표를 수정했어요!' : '투표 완료!', 'WORK · LIFE 모두 감사해요! 다음 챕터에서 만나요 💛', true, true);
+    } else { $('voteErr').textContent = r.error; }
   } catch (e) {
-    $('voteErr').textContent = '제출에 실패했습니다. 잠시 후 다시 시도해 주세요.'; $('submitBtn').disabled = false;
+    $('voteErr').textContent = '제출에 실패했습니다. 잠시 후 다시 시도해 주세요.';
   } finally { updateBar(); }
 };
-$('backBtn').onclick = () => { setHeader(); updateBar(); show('vote'); };
+$('backBtn').onclick = () => { step = 0; drawList(); show('vote'); };
 </script>
 </body>
 </html>
