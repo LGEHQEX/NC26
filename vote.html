@@ -119,6 +119,7 @@
     <div class="big" id="doneIcon">🎉</div>
     <h2 id="doneTitle"></h2>
     <p id="doneMsg"></p>
+    <button class="btn" id="backBtn" style="max-width:260px;margin:20px auto 0" hidden>📋 내 선택 다시 보기</button>
   </div>
 
   <p class="foot">신입사원 1주년: Next Chapter ✨</p>
@@ -130,16 +131,26 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbyHfjsjGmLrLjBHIBq2-zf7
 
 const $ = id => document.getElementById(id);
 const EMOJIS = ['💡', '🚀', '🌱', '🎯', '📚', '🧩', '🔍', '🛠️', '🌈', '💬', '🧠', '⚡'];
-let me = { empNo: '' }, MAX = 3, picked = new Set();
+let me = { empNo: '' }, MAX = 3, picked = new Set(), hasVoted = false, isOpen = true, cur = null;
 
 async function api(body) {
   const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
   return res.json();
 }
 function show(id) { ['login', 'vote', 'done'].forEach(x => $(x).classList.toggle('hide', x !== id)); window.scrollTo(0, 0); }
-function done(icon, title, msg, party) {
+function done(icon, title, msg, party, canBack) {
   $('doneIcon').textContent = icon; $('doneTitle').textContent = title; $('doneMsg').textContent = msg;
+  $('backBtn').hidden = !canBack;
   show('done'); if (party) confetti();
+}
+function setHeader() {
+  const r = cur;
+  $('voteChip').textContent = `📖 ${r.section}분반` + (hasVoted ? ' · ✅ 투표 완료' : '');
+  $('voteInfo').textContent = !isOpen
+    ? `${r.name}님이 선택한 일잘법이에요. 투표가 마감되었어요 ⏰`
+    : hasVoted
+      ? `${r.name}님, 투표 완료! 마음이 바뀌면 다시 골라서 수정할 수 있어요 🔁`
+      : `${r.name}님, 제목만 보고 최대 ${MAX}개까지 선택할 수 있어요.`;
 }
 function confetti() {
   const set = ['🎉', '✨', '⭐', '🎊', '🌱', '💛', '❤️'];
@@ -155,7 +166,9 @@ function updateBar() {
   let h = '';
   for (let i = 0; i < MAX; i++) h += i < picked.size ? '<b>★</b>' : '☆';
   $('tokens').innerHTML = h;
-  $('submitBtn').disabled = picked.size === 0;
+  const btn = $('submitBtn');
+  if (!isOpen) { btn.textContent = '⏰ 투표 마감'; btn.disabled = true; }
+  else { btn.textContent = hasVoted ? '🔁 투표 수정하기' : '🗳️ 투표하기'; btn.disabled = picked.size === 0; }
 }
 
 $('loginBtn').onclick = async () => {
@@ -165,9 +178,7 @@ $('loginBtn').onclick = async () => {
   try {
     const r = await api({ action: 'login', empNo });
     if (!r.ok) { $('loginErr').textContent = r.error; return; }
-    me = { empNo }; MAX = r.max;
-    if (r.voted) return done('✅', '이미 투표를 완료하셨어요', '참여해 주셔서 감사합니다 💛');
-    if (!r.open) return done('⏰', '투표가 마감되었어요', '참여해 주셔서 감사합니다 💛');
+    me = { empNo }; MAX = r.max; hasVoted = r.voted; isOpen = r.open;
     if (!r.items.length) return done('🔎', '투표할 과제가 없어요', '운영 담당자에게 문의해 주세요.');
     render(r);
   } catch (e) {
@@ -177,16 +188,18 @@ $('loginBtn').onclick = async () => {
 $('emp').addEventListener('keydown', e => { if (e.key === 'Enter') $('loginBtn').click(); });
 
 function render(r) {
-  $('voteChip').textContent = `📖 ${r.section}분반`;
-  $('voteInfo').textContent = `${r.name}님, 제목만 보고 최대 ${MAX}개까지 선택할 수 있어요.`;
+  cur = r; picked = new Set(r.myPicks || []); setHeader();
   const list = $('list'); list.innerHTML = '';
   r.items.forEach((it, idx) => {
     const d = document.createElement('div'); d.className = 'item';
+    const on = picked.has(it.id);
     const em = document.createElement('div'); em.className = 'em'; em.textContent = EMOJIS[idx % EMOJIS.length];
     const t = document.createElement('div'); t.className = 'title'; t.textContent = it.title;
     const ck = document.createElement('div'); ck.className = 'ck';
+    if (on) { d.classList.add('on'); ck.textContent = '✓'; }
     d.append(em, t, ck);
     d.onclick = () => {
+      if (!isOpen) return;
       if (picked.has(it.id)) { picked.delete(it.id); d.classList.remove('on'); ck.textContent = ''; }
       else if (picked.size >= MAX) { $('voteErr').textContent = `투표권은 최대 ${MAX}장이에요 ⭐`; return; }
       else { picked.add(it.id); d.classList.add('on'); ck.textContent = '✓'; }
@@ -198,16 +211,21 @@ function render(r) {
 }
 
 $('submitBtn').onclick = async () => {
-  if (!confirm(`${picked.size}개 과제에 투표할까요? 🗳️\n제출 후에는 수정할 수 없어요.`)) return;
+  if (!confirm(hasVoted ? `${picked.size}개 선택으로 투표를 수정할까요? 🔁\n기존 투표는 새 선택으로 바뀌어요.` : `${picked.size}개 일잘법에 투표할까요? 🗳️\n제출 후에도 마감 전까지 수정할 수 있어요.`)) return;
+  const wasVoted = hasVoted;
   $('submitBtn').disabled = true; $('submitBtn').textContent = '제출 중... ⏳';
   try {
     const r = await api({ action: 'vote', empNo: me.empNo, ids: [...picked] });
-    if (r.ok) done('🎉', '투표 완료!', '소중한 한 표 감사해요! 다음 챕터에서 만나요 💛', true);
+    if (r.ok) {
+      hasVoted = true; setHeader(); updateBar();
+      done('🎉', wasVoted ? '투표를 수정했어요!' : '투표 완료!', '소중한 한 표 감사해요! 다음 챕터에서 만나요 💛', true, true);
+    }
     else { $('voteErr').textContent = r.error; $('submitBtn').disabled = false; }
   } catch (e) {
     $('voteErr').textContent = '제출에 실패했습니다. 잠시 후 다시 시도해 주세요.'; $('submitBtn').disabled = false;
-  } finally { $('submitBtn').textContent = '🗳️ 투표하기'; }
+  } finally { updateBar(); }
 };
+$('backBtn').onclick = () => { setHeader(); updateBar(); show('vote'); };
 </script>
 </body>
 </html>
