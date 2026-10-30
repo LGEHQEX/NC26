@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>신입사원 1주년: Next Chapter · 과제 투표</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root{
+    --lg:#a50034; --lg-d:#7d0027; --lg-l:#fdeef3;
+    --gold:#f5b33d; --gold-l:#fff6e0;
+    --bg:#faf7f8; --card:#fff; --ink:#1f2128; --sub:#757a86; --line:#ebe6e8;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:Pretendard,-apple-system,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;line-height:1.55}
+  button{font:inherit;cursor:pointer}
+  .hide{display:none!important}
+
+  /* ── Hero ── */
+  .hero{position:relative;overflow:hidden;color:#fff;text-align:center;padding:34px 20px 54px;
+    background:radial-gradient(120% 140% at 85% -10%,#d4204f 0%,transparent 55%),linear-gradient(160deg,var(--lg) 0%,var(--lg-d) 100%)}
+  .hero::after{content:"";position:absolute;left:-5%;right:-5%;bottom:-1px;height:28px;background:var(--bg);border-radius:50% 50% 0 0/100% 100% 0 0}
+  .badge{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.08em;padding:5px 13px;border-radius:99px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35)}
+  .kicker{margin:14px 0 0;font-size:15px;font-weight:600;opacity:.92}
+  .hero h1{margin:2px 0 0;font-size:38px;line-height:1.15;font-weight:800;letter-spacing:-.02em}
+  .hero h1 em{font-style:normal;color:var(--gold)}
+  .sub-title{margin:10px 0 0;font-size:14px;opacity:.85}
+  .float{position:absolute;font-size:22px;opacity:.9;animation:bob 4s ease-in-out infinite}
+  .f1{left:8%;top:22px}.f2{right:9%;top:30px;animation-delay:.6s}.f3{left:16%;bottom:46px;animation-delay:1.2s}
+  .f4{right:15%;bottom:50px;animation-delay:1.8s}.f5{left:50%;top:8px;font-size:16px;animation-delay:.3s}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-8px) rotate(6deg)}}
+
+  .wrap{max-width:560px;margin:-14px auto 0;padding:0 16px 130px;position:relative}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px 20px;box-shadow:0 8px 24px rgba(165,0,52,.06)}
+  .hi{font-size:20px;font-weight:800;margin:0}
+  .hi-sub{margin:4px 0 18px;color:var(--sub);font-size:14px}
+  label{display:block;font-size:13px;font-weight:600;color:var(--sub);margin:0 0 6px}
+  input[type=text]{width:100%;padding:14px 16px;border:1.5px solid var(--line);border-radius:14px;font:inherit;font-size:17px;background:#fcfbfb;outline:none;transition:.15s}
+  input[type=text]:focus{border-color:var(--lg);background:#fff;box-shadow:0 0 0 4px var(--lg-l)}
+  .btn{width:100%;margin-top:16px;padding:15px;border:0;border-radius:14px;background:linear-gradient(135deg,var(--lg),var(--lg-d));color:#fff;font-size:16px;font-weight:700;box-shadow:0 6px 16px rgba(165,0,52,.25);transition:.15s}
+  .btn:active{transform:scale(.98)}
+  .btn:disabled{background:#d6d3d5;box-shadow:none;cursor:not-allowed}
+  .err{color:#c62828;font-size:14px;margin-top:12px;min-height:20px}
+
+  /* ── Vote ── */
+  .vhead{margin:6px 2px 14px}
+  .chip{display:inline-block;font-size:12px;font-weight:700;color:var(--lg);background:var(--lg-l);padding:4px 11px;border-radius:99px}
+  .vhead h2{margin:8px 0 2px;font-size:19px;font-weight:800}
+  .vhead p{margin:0;color:var(--sub);font-size:14px}
+  .item{display:flex;gap:13px;align-items:center;padding:14px 14px;margin-bottom:10px;background:var(--card);border:1.5px solid var(--line);border-radius:16px;cursor:pointer;user-select:none;transition:.15s}
+  .item:active{transform:scale(.99)}
+  .item .em{flex:0 0 42px;height:42px;border-radius:12px;background:var(--gold-l);display:flex;align-items:center;justify-content:center;font-size:21px}
+  .item .title{flex:1;font-size:16px;font-weight:600;word-break:keep-all}
+  .item .ck{flex:0 0 26px;height:26px;border-radius:50%;border:2px solid #cfcbcd;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;transition:.15s}
+  .item.on{border-color:var(--lg);background:var(--lg-l)}
+  .item.on .em{background:#fff}
+  .item.on .ck{background:var(--lg);border-color:var(--lg);animation:pop .25s}
+  @keyframes pop{0%{transform:scale(.5)}70%{transform:scale(1.25)}100%{transform:scale(1)}}
+
+  .bar{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom))}
+  .bar-in{max-width:560px;margin:0 auto;display:flex;align-items:center;gap:14px}
+  .tokens{flex:0 0 auto;line-height:1.2}
+  .tokens small{display:block;font-size:11px;color:var(--sub);font-weight:600}
+  .tokens .st{font-size:20px;letter-spacing:2px;color:#d9d5d7}
+  .tokens .st b{color:var(--gold);font-weight:400}
+  .bar .btn{margin:0}
+
+  /* ── Done ── */
+  .center{text-align:center;padding:38px 20px}
+  .big{font-size:60px;line-height:1;display:inline-block;animation:bounce 1.4s ease-in-out infinite}
+  @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .center h2{margin:14px 0 6px;font-size:21px;font-weight:800}
+  .center p{margin:0;color:var(--sub);font-size:15px}
+  .fall{position:fixed;top:-30px;z-index:50;pointer-events:none;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(110vh) rotate(360deg);opacity:.9}}
+
+  .foot{text-align:center;color:#a8a3a6;font-size:12px;margin-top:22px}
+  @media (prefers-reduced-motion:reduce){.float,.big,.item.on .ck{animation:none}.fall{display:none}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <span class="float f1">🎉</span><span class="float f2">✨</span><span class="float f3">🌱</span><span class="float f4">📖</span><span class="float f5">⭐</span>
+  <span class="badge">🎂 1st ANNIVERSARY</span>
+  <p class="kicker">신입사원 1주년</p>
+  <h1>Next <em>Chapter</em></h1>
+  <p class="sub-title">이번 기회에 꼭 들어보고 싶은,<br>흥미로운 일잘법에 투표해 주세요! 🗳️</p>
+</header>
+
+<div class="wrap">
+  <!-- 1. 로그인 -->
+  <div id="login" class="card">
+    <p class="hi">👋 안녕하세요!</p>
+    <p class="hi-sub" id="desc">사번을 입력하면 우리 분반의 과제가 열려요.</p>
+    <label for="emp">사번</label>
+    <input type="text" id="emp" autocomplete="off" inputmode="text" placeholder="사번을 입력해 주세요">
+    <button class="btn" id="loginBtn">입장하기 🚀</button>
+    <div class="err" id="loginErr"></div>
+  </div>
+
+  <!-- 2. 투표 -->
+  <div id="vote" class="hide">
+    <div class="vhead">
+      <span class="chip" id="voteChip">📖 Chapter 1</span>
+      <h2>꼭 들어보고 싶은 일잘법을 골라주세요 💡</h2>
+      <p id="voteInfo"></p>
+    </div>
+    <div id="list"></div>
+    <div class="bar"><div class="bar-in">
+      <div class="tokens"><small>내 투표권</small><div class="st" id="tokens"></div></div>
+      <button class="btn" id="submitBtn" disabled>🗳️ 투표하기</button>
+    </div></div>
+    <div class="err" id="voteErr"></div>
+  </div>
+
+  <!-- 3. 완료/안내 -->
+  <div id="done" class="card center hide">
+    <div class="big" id="doneIcon">🎉</div>
+    <h2 id="doneTitle"></h2>
+    <p id="doneMsg"></p>
+  </div>
+
+  <p class="foot">신입사원 1주년: Next Chapter ✨</p>
+</div>
+
+<script>
+/* ▼ Apps Script 웹 앱 배포 URL */
+const API_URL = 'https://script.google.com/macros/s/AKfycbyHfjsjGmLrLjBHIBq2-zf702VAx1OYXCd0a_trciSQuWpwr3croKphLRB5hn1A0QAb/exec';
+
+const $ = id => document.getElementById(id);
+const EMOJIS = ['💡', '🚀', '🌱', '🎯', '📚', '🧩', '🔍', '🛠️', '🌈', '💬', '🧠', '⚡'];
+let me = { empNo: '' }, MAX = 3, picked = new Set();
+
+async function api(body) {
+  const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
+  return res.json();
+}
+function show(id) { ['login', 'vote', 'done'].forEach(x => $(x).classList.toggle('hide', x !== id)); window.scrollTo(0, 0); }
+function done(icon, title, msg, party) {
+  $('doneIcon').textContent = icon; $('doneTitle').textContent = title; $('doneMsg').textContent = msg;
+  show('done'); if (party) confetti();
+}
+function confetti() {
+  const set = ['🎉', '✨', '⭐', '🎊', '🌱', '💛', '❤️'];
+  for (let i = 0; i < 26; i++) {
+    const s = document.createElement('span'); s.className = 'fall';
+    s.textContent = set[i % set.length];
+    s.style.left = Math.random() * 100 + 'vw'; s.style.fontSize = (16 + Math.random() * 16) + 'px';
+    s.style.animationDuration = (2.4 + Math.random() * 2.2) + 's'; s.style.animationDelay = (Math.random() * 1.2) + 's';
+    document.body.appendChild(s); setTimeout(() => s.remove(), 6500);
+  }
+}
+function updateBar() {
+  let h = '';
+  for (let i = 0; i < MAX; i++) h += i < picked.size ? '<b>★</b>' : '☆';
+  $('tokens').innerHTML = h;
+  $('submitBtn').disabled = picked.size === 0;
+}
+
+$('loginBtn').onclick = async () => {
+  const empNo = $('emp').value.trim();
+  if (!empNo) { $('loginErr').textContent = '사번을 입력해 주세요.'; return; }
+  $('loginBtn').disabled = true; $('loginBtn').textContent = '확인 중... ⏳'; $('loginErr').textContent = '';
+  try {
+    const r = await api({ action: 'login', empNo });
+    if (!r.ok) { $('loginErr').textContent = r.error; return; }
+    me = { empNo }; MAX = r.max;
+    if (r.voted) return done('✅', '이미 투표를 완료하셨어요', '참여해 주셔서 감사합니다 💛');
+    if (!r.open) return done('⏰', '투표가 마감되었어요', '참여해 주셔서 감사합니다 💛');
+    if (!r.items.length) return done('🔎', '투표할 과제가 없어요', '운영 담당자에게 문의해 주세요.');
+    render(r);
+  } catch (e) {
+    $('loginErr').textContent = '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.';
+  } finally { $('loginBtn').disabled = false; $('loginBtn').textContent = '입장하기 🚀'; }
+};
+$('emp').addEventListener('keydown', e => { if (e.key === 'Enter') $('loginBtn').click(); });
+
+function render(r) {
+  $('voteChip').textContent = `📖 ${r.section}분반`;
+  $('voteInfo').textContent = `${r.name}님, 제목만 보고 최대 ${MAX}개까지 선택할 수 있어요.`;
+  const list = $('list'); list.innerHTML = '';
+  r.items.forEach((it, idx) => {
+    const d = document.createElement('div'); d.className = 'item';
+    const em = document.createElement('div'); em.className = 'em'; em.textContent = EMOJIS[idx % EMOJIS.length];
+    const t = document.createElement('div'); t.className = 'title'; t.textContent = it.title;
+    const ck = document.createElement('div'); ck.className = 'ck';
+    d.append(em, t, ck);
+    d.onclick = () => {
+      if (picked.has(it.id)) { picked.delete(it.id); d.classList.remove('on'); ck.textContent = ''; }
+      else if (picked.size >= MAX) { $('voteErr').textContent = `투표권은 최대 ${MAX}장이에요 ⭐`; return; }
+      else { picked.add(it.id); d.classList.add('on'); ck.textContent = '✓'; }
+      $('voteErr').textContent = ''; updateBar();
+    };
+    list.appendChild(d);
+  });
+  updateBar(); show('vote');
+}
+
+$('submitBtn').onclick = async () => {
+  if (!confirm(`${picked.size}개 과제에 투표할까요? 🗳️\n제출 후에는 수정할 수 없어요.`)) return;
+  $('submitBtn').disabled = true; $('submitBtn').textContent = '제출 중... ⏳';
+  try {
+    const r = await api({ action: 'vote', empNo: me.empNo, ids: [...picked] });
+    if (r.ok) done('🎉', '투표 완료!', '소중한 한 표 감사해요! 다음 챕터에서 만나요 💛', true);
+    else { $('voteErr').textContent = r.error; $('submitBtn').disabled = false; }
+  } catch (e) {
+    $('voteErr').textContent = '제출에 실패했습니다. 잠시 후 다시 시도해 주세요.'; $('submitBtn').disabled = false;
+  } finally { $('submitBtn').textContent = '🗳️ 투표하기'; }
+};
+</script>
+</body>
+</html>
