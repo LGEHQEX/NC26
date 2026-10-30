@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>과제 투표 현황 (강사용)</title>
+<style>
+  :root{--bg:#f5f6f8;--card:#fff;--ink:#1b1e24;--sub:#6b7280;--line:#e3e6eb;--pri:#a50034}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;line-height:1.5}
+  .wrap{max-width:900px;margin:0 auto;padding:20px 16px 60px}
+  h1{font-size:22px;margin:8px 0 14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+  input,select{padding:11px;border:1px solid var(--line);border-radius:10px;font-size:15px;font-family:inherit}
+  button{font:inherit;cursor:pointer;padding:11px 16px;border:0;border-radius:10px;background:var(--pri);color:#fff;font-weight:600}
+  button.ghost{background:#eceef2;color:var(--ink)}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .err{color:#c62828;font-size:14px;margin-top:8px}
+  .sub{color:var(--sub);font-size:13px}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:12px 8px;text-align:left;border-bottom:1px solid var(--line);font-size:15px}
+  th{font-size:12px;color:var(--sub);font-weight:600}
+  tr.main{cursor:pointer} tr.main:hover{background:#fafbfc}
+  .rank{width:44px;color:var(--sub)} .votes{width:64px;font-weight:700;color:var(--pri);text-align:right}
+  .sec{width:76px;color:var(--sub)}
+  td.t{word-break:keep-all}
+  tr.detail td{background:#fafbfc;padding:12px 14px 16px}
+  .kv{display:grid;grid-template-columns:76px 1fr;gap:4px 10px;font-size:14px}
+  .kv span:nth-child(odd){color:var(--sub)}
+  a{color:#0b57d0;word-break:break-all}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+  .chip{font-size:12px;background:#eceef2;border-radius:99px;padding:3px 10px}
+  .hide{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>과제 투표 현황 <span class="sub">(강사용)</span></h1>
+
+  <div class="card">
+    <div class="row">
+      <select id="secSel" style="flex:1;min-width:180px"><option value="">분반을 불러오는 중...</option></select>
+    </div>
+    <div class="err" id="err"></div>
+  </div>
+
+  <div id="main" class="hide">
+    <div class="card">
+      <div class="row">
+        <button class="ghost" id="refresh">새로고침</button>
+        <span class="sub" id="upd"></span>
+      </div>
+      <div class="chips" id="stats"></div>
+    </div>
+    <div class="card" style="padding:4px 12px">
+      <table>
+        <thead><tr><th class="rank">순위</th><th>과제명</th><th class="sec">분반</th><th class="votes">득표</th></tr></thead>
+        <tbody id="tb"></tbody>
+      </table>
+    </div>
+    <p class="sub">행을 클릭하면 제출자와 과제 링크가 표시됩니다. 30초마다 자동 갱신됩니다.</p>
+  </div>
+</div>
+
+<script>
+/* ▼ Apps Script 웹 앱 배포 URL (수강생 페이지와 동일) */
+const API_URL = 'https://script.google.com/macros/s/AKfycbyHfjsjGmLrLjBHIBq2-zf702VAx1OYXCd0a_trciSQuWpwr3croKphLRB5hn1A0QAb/exec';
+
+const $ = id => document.getElementById(id);
+let data = null, open = new Set(), timer = null;
+
+async function call(body) {
+  const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
+  return res.json();
+}
+
+async function init() {
+  try {
+    const r = await call({ action: 'sections' });
+    if (!r.ok) { $('err').textContent = r.error; return; }
+    $('secSel').innerHTML = '<option value="">분반을 선택하세요</option>' + r.sections.map(s => `<option value="${esc(s)}">${esc(s)}분반</option>`).join('');
+    let last = '';
+    try { last = localStorage.getItem('voteSection') || ''; } catch (e) {}
+    if (last && r.sections.includes(last)) { $('secSel').value = last; choose(); }
+  } catch (e) { $('err').textContent = '서버에 연결할 수 없습니다.'; }
+}
+
+async function choose() {
+  const sec = $('secSel').value;
+  $('err').textContent = '';
+  clearInterval(timer); open = new Set();
+  if (!sec) { $('main').classList.add('hide'); return; }
+  try { localStorage.setItem('voteSection', sec); } catch (e) {}
+  await refresh();
+  timer = setInterval(refresh, 30000);
+}
+
+async function refresh() {
+  const sec = $('secSel').value;
+  if (!sec) return;
+  try {
+    const r = await call({ action: 'admin', section: sec });
+    if (!r.ok) { $('err').textContent = r.error; return; }
+    data = r; $('main').classList.remove('hide'); render();
+  } catch (e) { $('err').textContent = '서버에 연결할 수 없습니다.'; }
+}
+
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function safeUrl(u) { return /^https?:\/\//i.test(u) ? u : ''; }
+
+function render() {
+  const sec = $('secSel').value;
+  const items = data.items.filter(i => !sec || i.section === sec)
+    .sort((a, b) => b.votes - a.votes || a.section.localeCompare(b.section, 'ko', { numeric: true }) || a.title.localeCompare(b.title, 'ko'));
+  let rank = 0, prev = null, idx = 0;
+  $('tb').innerHTML = items.map(i => {
+    idx++; if (i.votes !== prev) { rank = idx; prev = i.votes; }
+    const isOpen = open.has(i.empNo);
+    const link = safeUrl(i.link);
+    return `<tr class="main" data-k="${esc(i.empNo)}"><td class="rank">${rank}</td><td class="t">${esc(i.title)}</td><td class="sec">${esc(i.section)}</td><td class="votes">${i.votes}</td></tr>` +
+      (isOpen ? `<tr class="detail"><td></td><td colspan="3"><div class="kv">
+        <span>이름</span><span>${esc(i.name)} (${esc(i.empNo)})</span>
+        <span>직급</span><span>${esc(i.rank)}</span>
+        <span>소속</span><span>${esc(i.hq)} / ${esc(i.dept)}</span>
+        <span>링크</span><span>${link ? `<a href="${esc(link)}" target="_blank" rel="noopener noreferrer">${esc(i.link)}</a>` : esc(i.link || '-')}</span>
+      </div></td></tr>` : '');
+  }).join('') || '<tr><td colspan="4" class="sub">데이터가 없습니다.</td></tr>';
+
+  document.querySelectorAll('tr.main').forEach(tr => tr.onclick = () => {
+    const k = tr.dataset.k; open.has(k) ? open.delete(k) : open.add(k); render();
+  });
+
+  const secs = Object.entries(data.sections).filter(([s]) => !sec || s === sec)
+    .sort((a, b) => a[0].localeCompare(b[0], 'ko', { numeric: true }));
+  $('stats').innerHTML = secs.map(([s, v]) => `<span class="chip">${esc(s)}분반 투표 ${v.voted}/${v.total}명</span>`).join('') +
+    (data.open ? '' : '<span class="chip">투표 마감</span>');
+  $('upd').textContent = '갱신 ' + new Date(data.updated).toLocaleTimeString('ko-KR');
+}
+
+$('secSel').onchange = choose;
+$('refresh').onclick = refresh;
+init();
+</script>
+</body>
+</html>
