@@ -143,9 +143,10 @@ function done(icon, title, msg, party, canBack) {
   $('backBtn').hidden = !canBack;
   show('done'); if (party) confetti();
 }
+const secLabel = s => /반$/.test(String(s)) ? s : s + '분반';
 function setHeader() {
   const r = cur;
-  $('voteChip').textContent = `📖 ${r.section}분반` + (hasVoted ? ' · ✅ 투표 완료' : '');
+  $('voteChip').textContent = `📖 ${secLabel(r.section)}` + (hasVoted ? ' · ✅ 투표 완료' : '');
   $('voteInfo').textContent = !isOpen
     ? `${r.name}님이 선택한 일잘법이에요. 투표가 마감되었어요 ⏰`
     : hasVoted
