@@ -32,6 +32,18 @@ h2{margin:0;font-size:24px;font-weight:700;padding-left:14px;border-left:5px sol
 .tt .off{background:var(--gray);color:var(--muted)}
 .tt .note{color:var(--muted);font-size:13px}
 .tt .star{color:var(--accent-text);font-size:13px;font-weight:700}
+.days{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+.day{border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:15px;line-height:1.45}
+.day .dh{background:var(--accent);color:#FFFFFF;font-weight:700;padding:12px;text-align:center}
+.day .row{display:grid;grid-template-columns:104px minmax(0,1fr);border-top:1px solid var(--line)}
+.day .row:first-of-type{border-top:0}
+.day .t{padding:14px 10px;color:var(--muted);font-weight:500;border-right:1px solid var(--line);font-variant-numeric:tabular-nums}
+.day .c{padding:14px 12px}
+.day .meal{background:var(--cream-2)}
+.day .off{background:var(--gray);color:var(--muted)}
+.day .note{color:var(--muted);font-size:13px}
+.day .star{color:var(--accent-text);font-size:13px;font-weight:700}
+@media (max-width:600px){.days{grid-template-columns:minmax(0,1fr)}}
 .contacts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;font-size:15px;line-height:1.6}
 .contacts>div{background:var(--cream);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column}
 .contacts .k{font-weight:700;color:var(--accent-text)}
@@ -47,15 +59,12 @@ h2{margin:0;font-size:24px;font-weight:700;padding-left:14px;border-left:5px sol
 </head>
 <body>
 <div class="page">
-
 <header class="hero">
 <div class="eyebrow">신입사원 1주년 프로그램 · 2차수(405~406기)</div>
 <h1>NEXT Chapter</h1>
 <p>입사 1주년을 진심으로 축하드립니다!<br>지난 1년을 돌아보고, 앞으로의 성장을 함께 그려보는 시간에 초대합니다.</p>
 </header>
-
 <main class="body">
-
 <section>
 <h2>교육 개요</h2>
 <div class="overview">
@@ -64,53 +73,33 @@ h2{margin:0;font-size:24px;font-weight:700;padding-left:14px;border-left:5px sol
 <div class="k">장소</div>
 <div>평택 러닝센터 채움관</div>
 <div class="k">집결</div>
-<div><b>11/9(월) 10:50까지</b> 명찰 확인 후 채움관 분반으로 이동</div>
+<div><b>11/9(월) 10:50까지</b> 모바일 명찰 확인 후 채움관 분반으로 이동</div>
 </div>
 </section>
-
 <section>
 <h2>교육 일정</h2>
-<div class="table-wrap">
-<div class="tt">
-<div class="h">시간</div>
-<div class="h">Day 1 · 11/9(월)</div>
-<div class="h">Day 2 · 11/10(화)</div>
-
-<div>08:00~11:00</div>
-<div class="off">이동</div>
-<div><b>(8:30)Page.4 상호학습</b><br>일 잘하는 1년차, 바로 나야<br><span class="star">★ 사전과제 발표</span></div>
-
-<div>11:00~12:00</div>
-<div><b>Page.1 회고</b><br>입사 후 1년, 무슨 일이 있었지?</div>
-<div><b>Page.5 성장 계획</b><br>Next Chapter</div>
-
-<div class="meal">12:00~13:00</div>
-<div class="meal">중식 (HOUSE 1958)</div>
-<div class="meal">중식 (HOUSE 1958)</div>
-
-<div>13:00~14:30</div>
-<div><b>Page.2 탐색</b><br>우리 회사의 일하는 방식, REINVENT 2.0<br><span class="note">대강당</span></div>
-<div><b>축하와 격려</b><br>대강당 Closing<br><span class="note">13:00~14:00</span></div>
-
-<div>14:30~16:30</div>
-<div><b>Page.3 성장 마인드셋</b><br>선배들의 일잘법, 들어볼래? / Q&amp;A</div>
-<div class="off">이동</div>
-
-<div class="sm">16:30~17:00</div>
-<div class="sm">1일차 마무리</div>
-<div class="sm off"></div>
-
-<div class="meal">17:00~18:00</div>
-<div class="meal">석식 (HOUSE 1958)</div>
-<div class="sm off"></div>
-
-<div class="sm">18:30~20:00</div>
-<div class="sm">저녁 네트워킹 (자율 참석)</div>
-<div class="sm off"></div>
+<div class="days">
+<div class="day">
+<div class="dh">Day 1 · 11/9(월)</div>
+<div class="row"><div class="t">08:00~11:00</div><div class="c off">이동</div></div>
+<div class="row"><div class="t">11:00~12:00</div><div class="c"><b>Page.1 회고</b><br>입사 후 1년, 무슨 일이 있었지?</div></div>
+<div class="row meal"><div class="t">12:00~13:00</div><div class="c">중식 (HOUSE 1958)</div></div>
+<div class="row"><div class="t">13:00~14:30</div><div class="c"><b>Page.2 탐색</b><br>우리 회사의 일하는 방식, REINVENT 2.0<br><span class="note">대강당</span></div></div>
+<div class="row"><div class="t">14:30~16:30</div><div class="c"><b>Page.3 성장 마인드셋</b><br>선배들의 일잘법, 들어볼래? / Q&amp;A</div></div>
+<div class="row"><div class="t">16:30~17:00</div><div class="c">1일차 마무리</div></div>
+<div class="row meal"><div class="t">17:00~18:00</div><div class="c">석식 (HOUSE 1958)</div></div>
+<div class="row"><div class="t">18:30~20:00</div><div class="c">저녁 네트워킹 (자율 참석)</div></div>
+</div>
+<div class="day">
+<div class="dh">Day 2 · 11/10(화)</div>
+<div class="row"><div class="t">09:00~09:30</div><div class="c"><b>축하와 격려</b><br><span class="note">대강당</span></div></div>
+<div class="row"><div class="t">09:30~11:30</div><div class="c"><b>Page.4 상호학습</b><br>일 잘하는 1년차, 바로 나야<br><span class="star">★ 사전과제 발표</span></div></div>
+<div class="row meal"><div class="t">12:00~13:00</div><div class="c">중식 (HOUSE 1958)</div></div>
+<div class="row"><div class="t">13:00~14:00</div><div class="c"><b>Page.5 성장 계획</b><br>Next Chapter</div></div>
+<div class="row"><div class="t">14:00~</div><div class="c off">이동</div></div>
 </div>
 </div>
 </section>
-
 <section>
 <h2>문의</h2>
 <div class="contacts">
@@ -126,7 +115,6 @@ h2{margin:0;font-size:24px;font-weight:700;padding-left:14px;border-left:5px sol
 </div>
 </div>
 </section>
-
 <div class="foot">LG전자 Employee eXperience&amp;Growth팀</div>
 </main>
 </div>
