@@ -176,7 +176,7 @@ function setHeader() {
   $('voteTitle').textContent = c.title;
   $('voteInfo').textContent = !isOpen
     ? `${r.name}님이 선택한 일잘법이에요. 투표가 마감되었어요 ⏰`
-    : `${c.sub} · 최대 ${MAX}개까지 고를 수 있어요. 🔗 미리보기로 과제를 먼저 볼 수 있어요.` + (hasVoted ? ' (수정 가능 🔁)' : '');
+    : `${c.sub} · 최대 ${MAX}개까지 고를 수 있어요. 🔗 미리보기는 PC환경에서만 작동해요.` + (hasVoted ? ' (수정 가능 🔁)' : '');
   [0, 1].forEach(i => {
     const el = $('stp' + i);
     el.className = i === step ? 'now' : (picks[i].size > 0 ? 'ok' : '');
