@@ -68,16 +68,15 @@
 
   .stay { padding: 20px; }
   .stay h2 { font-size: 13px; font-weight: 500; color: var(--sub); margin-bottom: 12px; }
-  .dates { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .date { background: var(--bg); border-radius: 10px; padding: 12px; }
-  .date .k { font-size: 12px; color: var(--sub); }
-  .date .v { font-size: 15px; font-weight: 700; margin-top: 2px; }
-  .room {
-    margin-top: 8px; background: var(--brand-soft); border-radius: 10px;
-    padding: 14px; display: flex; justify-content: space-between; align-items: center;
+  .dates { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .date {
+    background: var(--bg); border-radius: 10px; padding: 14px 8px;
+    text-align: center; min-width: 0;
   }
-  .room .k { font-size: 13px; color: var(--brand); font-weight: 500; }
-  .room .v { font-size: 18px; font-weight: 700; color: var(--brand); }
+  .date .k { font-size: 12px; color: var(--sub); }
+  .date .v { font-size: 15px; font-weight: 700; margin-top: 4px; word-break: keep-all; overflow-wrap: anywhere; }
+  .date.room { background: var(--brand-soft); }
+  .date.room .k, .date.room .v { color: var(--brand); }
 
   footer { text-align: center; font-size: 12px; color: var(--sub); margin-top: 24px; }
 </style>
@@ -116,8 +115,8 @@
         <div class="dates">
           <div class="date"><div class="k">입소</div><div class="v" id="r-입소"></div></div>
           <div class="date"><div class="k">퇴소</div><div class="v" id="r-퇴소"></div></div>
+          <div class="date room"><div class="k">숙소</div><div class="v" id="r-숙소"></div></div>
         </div>
-        <div class="room"><span class="k">숙소</span><span class="v" id="r-숙소"></span></div>
       </div>
     </div>
   </div>
