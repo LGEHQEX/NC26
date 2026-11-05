@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>배차·숙소 신청정보 조회</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brand: #A50034;
+    --brand-soft: #fbeef2;
+    --ink: #1f2328;
+    --sub: #6b7280;
+    --line: #e5e7eb;
+    --bg: #f5f6f8;
+    --card: #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg); color: var(--ink);
+    min-height: 100vh; display: flex; justify-content: center;
+    padding: 40px 16px;
+  }
+  .wrap { width: 100%; max-width: 460px; }
+  header { text-align: center; margin-bottom: 24px; }
+  header .tag {
+    display: inline-block; font-size: 12px; font-weight: 500;
+    color: var(--brand); background: var(--brand-soft);
+    padding: 4px 10px; border-radius: 999px; margin-bottom: 10px;
+  }
+  header h1 { font-size: 22px; font-weight: 700; }
+  header p { font-size: 14px; color: var(--sub); margin-top: 6px; }
+
+  .search {
+    background: var(--card); border-radius: 16px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  }
+  .search label { font-size: 13px; font-weight: 500; color: var(--sub); }
+  .row { display: flex; gap: 8px; margin-top: 8px; }
+  .row input {
+    flex: 1; min-width: 0; font: inherit; font-size: 16px;
+    padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 10px;
+    outline: none; transition: border-color .15s;
+  }
+  .row input:focus { border-color: var(--brand); }
+  .row button {
+    font: inherit; font-size: 15px; font-weight: 700; color: #fff;
+    background: var(--brand); border: 0; border-radius: 10px;
+    padding: 0 20px; cursor: pointer; white-space: nowrap;
+  }
+  .row button:disabled { opacity: .5; cursor: default; }
+
+  .msg { margin-top: 16px; text-align: center; font-size: 14px; color: var(--sub); }
+  .msg.error { color: #c62828; }
+
+  .result { margin-top: 16px; display: none; }
+  .result.show { display: block; animation: up .25s ease; }
+  @keyframes up { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .card { background: var(--card); border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .who { padding: 20px; border-bottom: 1px solid var(--line); }
+  .who .name { font-size: 20px; font-weight: 700; }
+  .who .name span { font-size: 14px; font-weight: 500; color: var(--sub); margin-left: 6px; }
+  .who .org { font-size: 14px; color: var(--sub); margin-top: 4px; }
+  .chips { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+  .chip { font-size: 13px; font-weight: 500; background: var(--bg); padding: 5px 10px; border-radius: 8px; }
+
+  .stay { padding: 20px; }
+  .stay h2 { font-size: 13px; font-weight: 500; color: var(--sub); margin-bottom: 12px; }
+  .dates { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .date { background: var(--bg); border-radius: 10px; padding: 12px; }
+  .date .k { font-size: 12px; color: var(--sub); }
+  .date .v { font-size: 15px; font-weight: 700; margin-top: 2px; }
+  .room {
+    margin-top: 8px; background: var(--brand-soft); border-radius: 10px;
+    padding: 14px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .room .k { font-size: 13px; color: var(--brand); font-weight: 500; }
+  .room .v { font-size: 18px; font-weight: 700; color: var(--brand); }
+
+  footer { text-align: center; font-size: 12px; color: var(--sub); margin-top: 24px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="tag">평택 러닝센터</div>
+    <h1>배차·숙소 신청정보 조회</h1>
+    <p>사번을 입력하면 신청 내역을 확인할 수 있습니다.</p>
+  </header>
+
+  <form class="search" id="form">
+    <label for="empNo">사번</label>
+    <div class="row">
+      <input id="empNo" inputmode="text" autocomplete="off" placeholder="사번 입력" required>
+      <button id="btn" type="submit">조회</button>
+    </div>
+  </form>
+
+  <div class="msg" id="msg"></div>
+
+  <div class="result" id="result">
+    <div class="card">
+      <div class="who">
+        <div class="name"><b id="r-이름"></b><span id="r-직급"></span></div>
+        <div class="org"><span id="r-본부"></span> · <span id="r-조직"></span></div>
+        <div class="chips">
+          <div class="chip" id="r-기수"></div>
+          <div class="chip" id="r-반"></div>
+          <div class="chip" id="r-팀"></div>
+        </div>
+      </div>
+      <div class="stay">
+        <h2>입·퇴소 및 숙소</h2>
+        <div class="dates">
+          <div class="date"><div class="k">입소</div><div class="v" id="r-입소"></div></div>
+          <div class="date"><div class="k">퇴소</div><div class="v" id="r-퇴소"></div></div>
+        </div>
+        <div class="room"><span class="k">숙소</span><span class="v" id="r-숙소"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>문의사항은 교육운영 담당자에게 연락 바랍니다.</footer>
+</div>
+
+<script>
+  // ↓ GAS 웹 앱 배포 URL로 교체
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycby_wfiCGRsD6LMPthSrENadOO8j3kIF1wdnQLm9rVKhXTivXr9FeCw29vazFVHNMHL1/exec';
+
+  const $ = id => document.getElementById(id);
+  const form = $('form'), btn = $('btn'), msg = $('msg'), result = $('result');
+
+  // 기수/반/팀 값에 단위가 없으면 붙여서 표시
+  const withUnit = (v, unit) => !v ? '-' : (v.endsWith(unit) ? v : v + unit);
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const empNo = $('empNo').value.trim();
+    if (!empNo) return;
+
+    btn.disabled = true;
+    result.classList.remove('show');
+    msg.className = 'msg';
+    msg.textContent = '조회 중입니다…';
+
+    try {
+      const res = await fetch(`${GAS_URL}?empNo=${encodeURIComponent(empNo)}`);
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error);
+
+      const d = json.data;
+      ['이름','직급','본부','조직','입소','퇴소','숙소'].forEach(k => $('r-' + k).textContent = d[k] || '-');
+      $('r-기수').textContent = withUnit(d['기수'], '기');
+      $('r-반').textContent = withUnit(d['반'], '반');
+      $('r-팀').textContent = withUnit(d['팀'], '팀');
+
+      msg.textContent = '';
+      result.classList.add('show');
+    } catch (err) {
+      msg.className = 'msg error';
+      msg.textContent = err.message && !err.message.includes('fetch')
+        ? err.message : '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.';
+    } finally {
+      btn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>
